@@ -47,10 +47,10 @@ typedef unsigned int uint;
  * \param WindowTitle - the current title of the window
  * \param NGridLines - the number of gridlines
  * \param PointSize - the pointsize
- * \param CoordinatesChaged - true if the arrow keya has been pressed,
- *                            false otherwize
+ * \param CoordinatesChanged - true if the arrow keya has been pressed,
+ *                            false otherwise
  * \param NeedsUpdate - true if the window needs to be updated - keypress or window resize,
- *                      false otherwize
+ *                      false otherwise
  */
 int method =  1;
 int xmin   = -9;
@@ -273,7 +273,7 @@ std::vector<glm::vec3> GenerateGridLines()
  * \param y2 - the y-coordinate of the end point.
  * \return A std::vector which contains the coordinates of the start and stop points of a straight line.
  */
-std::vector<glm::vec3> GenererateTestLine(int xstart, int ystart, int xstop, int ystop)
+std::vector<glm::vec3> GenerateTestLine(int xstart, int ystart, int xstop, int ystop)
 {
     std::vector<glm::vec3> vertices;
   
@@ -435,7 +435,7 @@ int main()
             glfwSetWindowPos(Window, XwindowPos + 1, YwindowPos);
             glfwPollEvents();
         }
-    
+
         // Setup a callback function for resize of the window
         glfwSetWindowSizeCallback(Window, ResizeCallback);
     
@@ -445,7 +445,8 @@ int main()
         // Initialize glew
         glewExperimental = GL_TRUE;
         GLenum err = glewInit();
-        if (err != GLEW_OK) {
+        // note: added condition to ignore GLEW_ERROR_NO_GLX_DISPLAY error to make it work with wayland
+        if (err != GLEW_OK && err != GLEW_ERROR_NO_GLX_DISPLAY) {
             std::ostringstream errmess;
             errmess << "GlfwWindow::Initialize(): "
                     << "GLEW failed to initialize: "
@@ -660,7 +661,7 @@ int main()
     
         // User data
         std::vector<glm::vec3> TestLine;
-        TestLine = GenererateTestLine(xstart, ystart, xstop, ystop);
+        TestLine = GenerateTestLine(xstart, ystart, xstop, ystop);
     
         // Make a VertexArrayObject - it is used by the VertexArrayBuffer, and it must be declared!
         GLuint TestLineVertexArrayID;
@@ -782,7 +783,7 @@ int main()
                     glBindVertexArray(TestLineVertexArrayID);
                     glEnableVertexAttribArray(testlineattribute);
                     if (CoordinatesChanged) {
-                        TestLine = GenererateTestLine(xstart, ystart, xstop, ystop);
+                        TestLine = GenerateTestLine(xstart, ystart, xstop, ystop);
                         glBindBuffer(GL_ARRAY_BUFFER, testlinebuffer);
                         if (TestLine.size() > 0) {
                             glBufferData(GL_ARRAY_BUFFER, TestLine.size() * sizeof(float) * 3, &(TestLine[0][0]),
